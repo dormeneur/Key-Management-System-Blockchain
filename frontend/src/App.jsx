@@ -217,6 +217,7 @@ export default function App() {
                 />
             ) : view === "playground" ? (
                 <EncryptDecryptPlayground
+                    keys={vm.keys}
                     onBack={() => setView("dashboard")}
                     walletAddress={walletAddress}
                     onDisconnect={disconnect}

@@ -47,8 +47,9 @@ export default function KeyDetailView({
 
     return (
         <div className="detail container">
-            <button className="detail-back" onClick={onBack}>
-                ← Back to Dashboard
+            <button className="back-link" onClick={onBack}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
+                Back to Dashboard
             </button>
 
             <div className="detail-header">
@@ -100,11 +101,11 @@ export default function KeyDetailView({
             {/* Actions */}
             {keyData.isActive && (
                 <div className="detail-actions">
-                    <button className="btn btn-secondary" onClick={() => onRotate(keyData)}>
-                        🔄 Rotate Key
+                    <button className="btn btn-ghost" onClick={() => onRotate(keyData)}>
+                        Rotate Key
                     </button>
-                    <button className="btn btn-danger" onClick={() => onRevoke(keyData)}>
-                        🚫 Revoke Key
+                    <button className="btn btn-danger-outline" onClick={() => onRevoke(keyData)}>
+                        Revoke Key
                     </button>
                 </div>
             )}
@@ -114,11 +115,11 @@ export default function KeyDetailView({
                 Audit Trail
             </h3>
             {loadingEvents ? (
-                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
+                <p style={{ color: "var(--text-2)", fontSize: "0.85rem" }}>
                     Loading events…
                 </p>
             ) : events.length === 0 ? (
-                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
+                <p style={{ color: "var(--text-2)", fontSize: "0.85rem" }}>
                     No events found.
                 </p>
             ) : (

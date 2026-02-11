@@ -68,11 +68,11 @@ export default function RegisterKeyModal({ onSubmit, onClose }) {
                     )}
 
                     <div className="modal-actions">
-                        <button type="button" className="btn btn-secondary" onClick={onClose}>
+                        <button type="button" className="btn btn-ghost" onClick={onClose}>
                             Cancel
                         </button>
                         <button type="submit" className="btn btn-primary">
-                            🔐 Register Key
+                            Register Key
                         </button>
                     </div>
                 </form>
