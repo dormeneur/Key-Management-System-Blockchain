@@ -31,10 +31,10 @@ export default function App() {
     const [walletAddress, setWalletAddress] = useState("");
     const [connecting, setConnecting] = useState(false);
 
-    // ── UI state ───────────────────────────────────────────────
-    const [view, setView] = useState("dashboard"); // dashboard | detail
+    // ── UI state ───────────────────────────────────────────
+    const [activeTab, setActiveTab] = useState("home"); // home | playground
     const [showRegister, setShowRegister] = useState(false);
-    const [selectedKey, setSelectedKey] = useState(null);
+    const [selectedKey, setSelectedKey] = useState(null); // for detail overlay
     const [keyNames, setKeyNames] = useState(loadKeyNames());
 
     // ── Password prompt for rotate ─────────────────────────────
@@ -83,7 +83,7 @@ export default function App() {
     const disconnect = () => {
         setSigner(null);
         setWalletAddress("");
-        setView("dashboard");
+        setActiveTab("home");
         setSelectedKey(null);
     };
 
@@ -152,7 +152,7 @@ export default function App() {
 
     function handleSelectKey(keyData) {
         setSelectedKey(keyData);
-        setView("detail");
+        // Detail view is now an overlay, no tab change needed
     }
 
     // ── Render ─────────────────────────────────────────────────
@@ -202,37 +202,77 @@ export default function App() {
                 />
             )}
 
-            {/* View router */}
-            {view === "detail" && selectedKey ? (
-                <KeyDetailView
-                    keyData={selectedKey}
-                    onBack={() => {
-                        setView("dashboard");
-                        setSelectedKey(null);
-                        vm.loadKeys();
-                    }}
-                    onRotate={handleRotate}
-                    onRevoke={handleRevoke}
-                    getKeyEvents={vm.getKeyEvents}
-                />
-            ) : view === "playground" ? (
-                <EncryptDecryptPlayground
-                    keys={vm.keys}
-                    onBack={() => setView("dashboard")}
-                    walletAddress={walletAddress}
-                    onDisconnect={disconnect}
-                />
-            ) : (
-                <Dashboard
-                    keys={vm.keys}
-                    walletAddress={walletAddress}
-                    onRegister={() => setShowRegister(true)}
-                    onSelect={handleSelectKey}
-                    onRotate={handleRotate}
-                    onRevoke={handleRevoke}
-                    onDisconnect={disconnect}
-                    onPlayground={() => setView("playground")}
-                />
+            {/* Header with tabs */}
+            <header className="header">
+                <div className="container header-inner">
+                    <div className="header-brand">
+                        <div className="header-brand-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                        </div>
+                        Blockchain KMS
+                    </div>
+                    <div className="header-tabs">
+                        <button
+                            className={`tab ${activeTab === "home" ? "tab-active" : ""}`}
+                            onClick={() => setActiveTab("home")}
+                        >
+                            Home
+                        </button>
+                        <button
+                            className={`tab ${activeTab === "playground" ? "tab-active" : ""}`}
+                            onClick={() => setActiveTab("playground")}
+                        >
+                            Playground
+                        </button>
+                    </div>
+                    <div className="header-right">
+                        <span className="badge badge-network">Sepolia</span>
+                        <span className="header-address">
+                            {walletAddress?.slice(0, 6)}…{walletAddress?.slice(-4)}
+                        </span>
+                        <button className="btn btn-ghost btn-sm" onClick={disconnect}>
+                            Disconnect
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            {/* Tab content with slide animation */}
+            <div className="tab-content-wrapper">
+                <div className={`tab-content ${activeTab === "home" ? "tab-content-active" : "tab-content-hidden"}`}>
+                    <Dashboard
+                        keys={vm.keys}
+                        walletAddress={walletAddress}
+                        onRegister={() => setShowRegister(true)}
+                        onSelect={handleSelectKey}
+                        onRotate={handleRotate}
+                        onRevoke={handleRevoke}
+                    />
+                </div>
+                <div className={`tab-content ${activeTab === "playground" ? "tab-content-active" : "tab-content-hidden"}`}>
+                    <EncryptDecryptPlayground
+                        keys={vm.keys}
+                        walletAddress={walletAddress}
+                    />
+                </div>
+            </div>
+
+            {/* Detail view overlay */}
+            {selectedKey && (
+                <div className="detail-overlay" onClick={() => setSelectedKey(null)}>
+                    <div className="detail-overlay-content" onClick={(e) => e.stopPropagation()}>
+                        <KeyDetailView
+                            keyData={selectedKey}
+                            onBack={() => {
+                                setSelectedKey(null);
+                                vm.loadKeys();
+                            }}
+                            onRotate={handleRotate}
+                            onRevoke={handleRevoke}
+                            getKeyEvents={vm.getKeyEvents}
+                        />
+                    </div>
+                </div>
             )}
         </>
     );

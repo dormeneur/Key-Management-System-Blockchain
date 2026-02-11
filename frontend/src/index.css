@@ -181,6 +181,64 @@ select.input { cursor: pointer; }
   border: 1px solid var(--border-subtle);
 }
 
+/* ── Tab Navigation ───────────────────────────────────────── */
+.header-tabs { display: flex; gap: 4px; position: absolute; left: 50%; transform: translateX(-50%); }
+.tab {
+  padding: 8px 20px; border: none; background: transparent; color: var(--text-2);
+  font-family: var(--font); font-size: 0.85rem; font-weight: 500;
+  cursor: pointer; transition: all var(--transition); border-radius: var(--radius-xs);
+  position: relative;
+}
+.tab:hover { color: var(--text-0); background: rgba(255,255,255,0.04); }
+.tab-active {
+  color: var(--text-0);
+}
+.tab-active::after {
+  content: ''; position: absolute; bottom: 0; left: 10%; right: 10%;
+  height: 2px; background: var(--accent); border-radius: 2px;
+}
+
+/* ── Tab Content Transitions ──────────────────────────────── */
+.tab-content-wrapper { position: relative; flex: 1; overflow: hidden; }
+.tab-content {
+  position: absolute; top: 0; left: 0; right: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+.tab-content-active {
+  position: relative; transform: translateX(0); opacity: 1; z-index: 1;
+}
+.tab-content-hidden {
+  transform: translateX(-20px); opacity: 0; pointer-events: none; z-index: 0;
+}
+
+/* ── Info Card ────────────────────────────────────────────── */
+.info-card {
+  background: var(--accent-dim); border: 1px solid var(--border-accent);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 24px;
+}
+.info-card-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+  font-size: 0.82rem; font-weight: 600; color: var(--accent);
+}
+.info-card-content { display: flex; flex-direction: column; gap: 10px; }
+.info-item {
+  font-size: 0.8rem; line-height: 1.5; color: var(--text-1);
+}
+.info-item strong { color: var(--text-0); font-weight: 600; }
+
+/* ── Detail Overlay ───────────────────────────────────────── */
+.detail-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px); display: flex; align-items: flex-start; justify-content: center;
+  z-index: 200; padding: 40px 20px; overflow-y: auto;
+  animation: fadeIn 0.2s ease;
+}
+.detail-overlay-content {
+  background: var(--bg-1); border: 1px solid var(--border-default);
+  border-radius: var(--radius); width: 100%; max-width: 920px;
+  box-shadow: var(--shadow-lg); animation: slideIn 0.25s ease;
+}
+
 /* ── Dashboard ────────────────────────────────────────────── */
 .dashboard { padding: 28px 0; flex: 1; }
 .dashboard-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
@@ -213,6 +271,14 @@ select.input { cursor: pointer; }
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.9; }
+}
 .modal {
   background: var(--bg-2); border: 1px solid var(--border-default); border-radius: var(--radius);
   padding: 28px; width: 100%; max-width: 420px;
@@ -367,6 +433,10 @@ select.input { cursor: pointer; }
   background: var(--bg-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-xs);
   padding: 10px; font-size: 0.7rem; line-height: 1.5; word-break: break-all;
   max-height: 100px; overflow-y: auto; color: var(--accent);
+  position: relative;
+  background: linear-gradient(90deg, var(--bg-1) 0%, rgba(129, 140, 248, 0.1) 50%, var(--bg-1) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out;
 }
 
 .pg-details {
@@ -387,7 +457,7 @@ select.input { cursor: pointer; }
 .pg-result-box {
   margin-top: 14px; padding: 14px; background: var(--success-dim);
   border: 1px solid rgba(52, 211, 153, 0.2); border-radius: var(--radius-xs);
-  animation: slideIn 0.2s ease;
+  animation: slideIn 0.2s ease, pulse 0.6s ease;
 }
 .pg-result-box label {
   display: block; font-size: 0.68rem; text-transform: uppercase;

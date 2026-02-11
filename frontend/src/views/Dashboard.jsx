@@ -7,137 +7,121 @@ export default function Dashboard({
     onSelect,
     onRotate,
     onRevoke,
-    walletAddress,
-    onDisconnect,
-    onPlayground,
 }) {
     const active = keys.filter((k) => k.isActive).length;
     const revoked = keys.filter((k) => !k.isActive).length;
 
     return (
-        <>
-            {/* Header */}
-            <header className="header">
-                <div className="container header-inner">
-                    <div className="header-brand">
-                        <div className="header-brand-icon">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                        </div>
-                        Blockchain KMS
+        <main className="dashboard container">
+            {/* Info card */}
+            <div className="info-card">
+                <div className="info-card-header">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
+                    <span>Key Lifecycle Operations</span>
+                </div>
+                <div className="info-card-content">
+                    <div className="info-item">
+                        <strong>Rotate:</strong> Generate a new encryption key while keeping the same key ID. Previous versions become inaccessible. Use this periodically for security.
                     </div>
-                    <div className="header-right">
-                        <span className="badge badge-network">Sepolia</span>
-                        <span className="header-address">
-                            {walletAddress?.slice(0, 6)}…{walletAddress?.slice(-4)}
-                        </span>
-                        <button className="btn btn-ghost btn-sm" onClick={onDisconnect}>
-                            Disconnect
-                        </button>
+                    <div className="info-item">
+                        <strong>Revoke:</strong> Permanently disable a key. This action cannot be undone. Use when a key is compromised or no longer needed.
                     </div>
                 </div>
-            </header>
+            </div>
 
-            {/* Content */}
-            <main className="dashboard container">
-                {/* Stats */}
-                <div className="dashboard-stats">
-                    <div className="card stat-card">
-                        <div className="stat-value">{keys.length}</div>
-                        <div className="stat-label">Total Keys</div>
-                    </div>
-                    <div className="card stat-card">
-                        <div className="stat-value">{active}</div>
-                        <div className="stat-label">Active</div>
-                    </div>
-                    <div className="card stat-card">
-                        <div className="stat-value">{revoked}</div>
-                        <div className="stat-label">Revoked</div>
-                    </div>
+            {/* Stats */}
+            <div className="dashboard-stats">
+                <div className="card stat-card">
+                    <div className="stat-value">{keys.length}</div>
+                    <div className="stat-label">Total Keys</div>
                 </div>
-
-                {/* Toolbar */}
-                <div className="dashboard-header">
-                    <h2>Your Keys</h2>
-                    <div style={{ display: "flex", gap: 10 }}>
-                        <button className="btn btn-ghost" onClick={onPlayground}>
-                            Encrypt / Decrypt
-                        </button>
-                        <button className="btn btn-primary" onClick={onRegister}>
-                            + Register New Key
-                        </button>
-                    </div>
+                <div className="card stat-card">
+                    <div className="stat-value">{active}</div>
+                    <div className="stat-label">Active</div>
                 </div>
+                <div className="card stat-card">
+                    <div className="stat-value">{revoked}</div>
+                    <div className="stat-label">Revoked</div>
+                </div>
+            </div>
 
-                {/* Table or Empty */}
-                {keys.length === 0 ? (
-                    <div className="card empty-state">
-                        <div className="empty-state-icon">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></svg>
-                        </div>
-                        <h3>No keys registered yet</h3>
-                        <p>Click "Register New Key" to create your first encrypted key.</p>
+            {/* Toolbar */}
+            <div className="dashboard-header">
+                <h2>Your Keys</h2>
+                <button className="btn btn-primary" onClick={onRegister}>
+                    + Register New Key
+                </button>
+            </div>
+
+            {/* Table or Empty */}
+            {keys.length === 0 ? (
+                <div className="card empty-state">
+                    <div className="empty-state-icon">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></svg>
                     </div>
-                ) : (
-                    <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-                        <table className="key-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>State</th>
-                                    <th>Registered</th>
-                                    <th>Last Rotated</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {keys.map((k) => (
-                                    <tr key={k.keyId}>
-                                        <td
-                                            style={{ cursor: "pointer", fontWeight: 600 }}
-                                            onClick={() => onSelect(k)}
+                    <h3>No keys registered yet</h3>
+                    <p>Click "Register New Key" to create your first encrypted key.</p>
+                </div>
+            ) : (
+                <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+                    <table className="key-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>State</th>
+                                <th>Registered</th>
+                                <th>Last Rotated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {keys.map((k) => (
+                                <tr key={k.keyId}>
+                                    <td
+                                        style={{ cursor: "pointer", fontWeight: 600 }}
+                                        onClick={() => onSelect(k)}
+                                    >
+                                        {k.name}
+                                    </td>
+                                    <td>
+                                        <span
+                                            className={`badge ${k.isActive ? "badge-active" : "badge-revoked"}`}
                                         >
-                                            {k.name}
-                                        </td>
-                                        <td>
-                                            <span
-                                                className={`badge ${k.isActive ? "badge-active" : "badge-revoked"}`}
+                                            {k.stateLabel}
+                                        </span>
+                                    </td>
+                                    <td style={{ fontSize: "0.82rem", color: "var(--text-1)" }}>
+                                        {k.registeredDate.toLocaleString()}
+                                    </td>
+                                    <td style={{ fontSize: "0.82rem", color: "var(--text-1)" }}>
+                                        {k.rotatedDate ? k.rotatedDate.toLocaleString() : "—"}
+                                    </td>
+                                    <td>
+                                        <div className="key-actions">
+                                            {k.isActive && (
+                                                <>
+                                                    <button className="btn btn-ghost btn-sm" onClick={() => onRotate(k)}>
+                                                        Rotate
+                                                    </button>
+                                                    <button className="btn btn-danger-outline btn-sm" onClick={() => onRevoke(k)}>
+                                                        Revoke
+                                                    </button>
+                                                </>
+                                            )}
+                                            <button
+                                                className="btn btn-ghost btn-sm"
+                                                onClick={() => onSelect(k)}
                                             >
-                                                {k.stateLabel}
-                                            </span>
-                                        </td>
-                                        <td style={{ fontSize: "0.82rem", color: "var(--text-1)" }}>
-                                            {k.registeredDate.toLocaleString()}
-                                        </td>
-                                        <td style={{ fontSize: "0.82rem", color: "var(--text-1)" }}>
-                                            {k.rotatedDate ? k.rotatedDate.toLocaleString() : "—"}
-                                        </td>
-                                        <td>
-                                            <div className="key-actions">
-                                                {k.isActive && (
-                                                    <>
-                                                        <button className="btn btn-ghost btn-sm" onClick={() => onRotate(k)}>
-                                                            Rotate
-                                                        </button>
-                                                        <button className="btn btn-danger-outline btn-sm" onClick={() => onRevoke(k)}>
-                                                            Revoke
-                                                        </button>
-                                                    </>
-                                                )}
-                                                <button
-                                                    className="btn btn-ghost btn-sm"
-                                                    onClick={() => onSelect(k)}
-                                                >
-                                                    View
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </main>
-        </>
+                                                View
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </main>
     );
 }
