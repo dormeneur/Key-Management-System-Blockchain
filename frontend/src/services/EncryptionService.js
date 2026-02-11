@@ -115,3 +115,54 @@ export async function decryptKey(encryptedBlob, password) {
 
     return buf2b64(rawKey);
 }
+
+// ── Message encryption (for Playground) ─────────────────────
+
+/**
+ * Encrypt an arbitrary plaintext message using AES-256-GCM.
+ *
+ * @param {string} plaintext  The user's message
+ * @param {string} password   Encryption password
+ * @returns {{ ciphertext: string, iv: string, salt: string }}
+ */
+export async function encryptMessage(plaintext, password) {
+    const encoder = new TextEncoder();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const aesKey = await deriveKey(password, salt);
+
+    const encrypted = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv },
+        aesKey,
+        encoder.encode(plaintext)
+    );
+
+    return {
+        ciphertext: buf2b64(encrypted),
+        iv: buf2b64(iv),
+        salt: buf2b64(salt),
+        algorithm: "AES-256-GCM",
+    };
+}
+
+/**
+ * Decrypt a ciphertext bundle back to the original message.
+ *
+ * @param {{ ciphertext: string, iv: string, salt: string }} bundle
+ * @param {string} password
+ * @returns {string} Original plaintext message
+ */
+export async function decryptMessage(bundle, password) {
+    const salt = new Uint8Array(b642buf(bundle.salt));
+    const iv = new Uint8Array(b642buf(bundle.iv));
+    const ciphertext = b642buf(bundle.ciphertext);
+
+    const aesKey = await deriveKey(password, salt);
+    const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv },
+        aesKey,
+        ciphertext
+    );
+
+    return new TextDecoder().decode(decrypted);
+}

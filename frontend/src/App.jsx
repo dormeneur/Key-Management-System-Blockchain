@@ -7,6 +7,7 @@ import LandingPage from "./views/LandingPage";
 import Dashboard from "./views/Dashboard";
 import RegisterKeyModal from "./views/RegisterKeyModal";
 import KeyDetailView from "./views/KeyDetailView";
+import EncryptDecryptPlayground from "./views/EncryptDecryptPlayground";
 import "./index.css";
 
 const KEY_NAMES_STORAGE = "kms_key_names";
@@ -214,6 +215,12 @@ export default function App() {
                     onRevoke={handleRevoke}
                     getKeyEvents={vm.getKeyEvents}
                 />
+            ) : view === "playground" ? (
+                <EncryptDecryptPlayground
+                    onBack={() => setView("dashboard")}
+                    walletAddress={walletAddress}
+                    onDisconnect={disconnect}
+                />
             ) : (
                 <Dashboard
                     keys={vm.keys}
@@ -223,6 +230,7 @@ export default function App() {
                     onRotate={handleRotate}
                     onRevoke={handleRevoke}
                     onDisconnect={disconnect}
+                    onPlayground={() => setView("playground")}
                 />
             )}
         </>

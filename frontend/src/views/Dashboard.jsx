@@ -9,6 +9,7 @@ export default function Dashboard({
     onRevoke,
     walletAddress,
     onDisconnect,
+    onPlayground,
 }) {
     const active = keys.filter((k) => k.isActive).length;
     const revoked = keys.filter((k) => !k.isActive).length;
@@ -55,9 +56,14 @@ export default function Dashboard({
                 {/* Toolbar */}
                 <div className="dashboard-header">
                     <h2>Your Keys</h2>
-                    <button className="btn btn-primary" onClick={onRegister}>
-                        + Register New Key
-                    </button>
+                    <div style={{ display: "flex", gap: 10 }}>
+                        <button className="btn btn-secondary" onClick={onPlayground}>
+                            🧪 Encrypt / Decrypt
+                        </button>
+                        <button className="btn btn-primary" onClick={onRegister}>
+                            + Register New Key
+                        </button>
+                    </div>
                 </div>
 
                 {/* Table or Empty */}
