@@ -1,6 +1,10 @@
 # 🔐 Blockchain KMS
 
-A decentralized Key Management System built for a college project. Uses Ethereum smart contracts for lifecycle management, IPFS for encrypted storage, and browser-side AES-256-GCM encryption.
+A decentralized Key Management System built as a Cryptography & Network Security college project. Uses Ethereum smart contracts for lifecycle management, IPFS for encrypted storage, and browser-side AES-256-GCM encryption.
+
+> 🌐 **Live App**: [key-management-system-blockchain.vercel.app](https://key-management-system-blockchain.vercel.app/)
+>
+> 📜 **Verified Contract**: [View on Etherscan](https://sepolia.etherscan.io/address/0x5D62127C6307C05ca7E9dfC7d45f5d460921a3B9#code)
 
 ## Architecture
 
