@@ -56,9 +56,10 @@ async function deriveKey(password, salt) {
  * a JSON-serialisable bundle ready for IPFS upload.
  *
  * @param {string} password  User-supplied password
+ * @param {string} keyName   Human-readable name of the key
  * @returns {{ encryptedBlob: object, rawKeyBase64: string }}
  */
-export async function encryptNewKey(password) {
+export async function encryptNewKey(password, keyName = "Unnamed Key") {
     // 1. Generate random 32-byte key material
     const rawKey = crypto.getRandomValues(new Uint8Array(32));
 
@@ -85,6 +86,7 @@ export async function encryptNewKey(password) {
         metadata: {
             createdAt: Math.floor(Date.now() / 1000),
             keyType: "symmetric",
+            name: keyName,
         },
     };
 

@@ -13,21 +13,11 @@ export default function Dashboard({
 
     return (
         <main className="dashboard container">
-            {/* Info card */}
-            <div className="info-card">
-                <div className="info-card-header">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
-                    <span>Key Lifecycle Operations</span>
-                </div>
-                <div className="info-card-content">
-                    <div className="info-item">
-                        <strong>Rotate:</strong> Generate a new encryption key while keeping the same key ID. Previous versions become inaccessible. Use this periodically for security.
-                    </div>
-                    <div className="info-item">
-                        <strong>Revoke:</strong> Permanently disable a key. This action cannot be undone. Use when a key is compromised or no longer needed.
-                    </div>
-                </div>
-            </div>
+            {/* Hero Section */}
+            <section className="hero">
+                <h1>Manage Your Keys</h1>
+                <p>Secure, decentralized key management for your blockchain assets. Register, rotate, and revoke keys with full on-chain transparency.</p>
+            </section>
 
             {/* Stats */}
             <div className="dashboard-stats">

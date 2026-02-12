@@ -7,7 +7,7 @@ import { useReducer, useCallback } from "react";
 import { KeyMetadata } from "../models/KeyModel";
 import { KeyLifecycleService } from "../services/KeyLifecycleService";
 import { encryptNewKey } from "../services/EncryptionService";
-import { uploadJSON } from "../services/IPFSService";
+import { uploadJSON, fetchJSON } from "../services/IPFSService";
 
 // ── Reducer ──────────────────────────────────────────────────
 
@@ -60,10 +60,24 @@ export function useKeyLifecycle(signer, contractAddress, keyNames = {}) {
             const keys = [];
             for (const id of keyIds) {
                 const meta = await service.getKeyMetadata(id);
+                let name = keyNames[id];
+
+                // If name is missing locally, try to fetch from IPFS metadata
+                if (!name && meta.ipfsCID) {
+                    try {
+                        const ipfsData = await fetchJSON(meta.ipfsCID);
+                        if (ipfsData.metadata && ipfsData.metadata.name) {
+                            name = ipfsData.metadata.name;
+                        }
+                    } catch (err) {
+                        console.warn(`Failed to fetch metadata for key ${id}:`, err);
+                    }
+                }
+
                 keys.push(
                     new KeyMetadata(
                         id,
-                        keyNames[id] || id.slice(0, 10) + "…",
+                        name || id.slice(0, 10) + "…",
                         meta.ipfsCID,
                         meta.state,
                         meta.owner,
@@ -85,7 +99,7 @@ export function useKeyLifecycle(signer, contractAddress, keyNames = {}) {
             try {
                 // Step 1: Encrypt
                 dispatch({ type: "LOADING", status: "Encrypting key…" });
-                const { encryptedBlob } = await encryptNewKey(password);
+                const { encryptedBlob } = await encryptNewKey(password, keyName);
 
                 // Step 2: Upload to IPFS
                 dispatch({ type: "LOADING", status: "Uploading to IPFS…" });
@@ -113,7 +127,10 @@ export function useKeyLifecycle(signer, contractAddress, keyNames = {}) {
             if (!signer) return;
             try {
                 dispatch({ type: "LOADING", status: "Encrypting new key…" });
-                const { encryptedBlob } = await encryptNewKey(password);
+
+                // Preserve existing name if known
+                const currentName = keyNames[keyId] || "Rotated Key";
+                const { encryptedBlob } = await encryptNewKey(password, currentName);
 
                 dispatch({ type: "LOADING", status: "Uploading to IPFS…" });
                 const cid = await uploadJSON(encryptedBlob, pinataJWT);
@@ -129,7 +146,7 @@ export function useKeyLifecycle(signer, contractAddress, keyNames = {}) {
                 throw err;
             }
         },
-        [signer, contractAddress]
+        [signer, contractAddress, keyNames]
     );
 
     // ── Revoke ────────────────────────────────────────────────

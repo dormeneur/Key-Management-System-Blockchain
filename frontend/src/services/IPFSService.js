@@ -38,30 +38,41 @@ export async function uploadJSON(jsonData, pinataJWT) {
             // v3 returns { data: { cid: "..." } }
             return result.data?.cid || result.data?.IpfsHash;
         }
-    } catch {
+    } catch (err) {
+        // Check if it's a network error
+        if (err.message.includes("Failed to fetch") || err.message.includes("offline")) {
+            throw new Error("Network error: Unable to reach IPFS. Please check your internet connection.");
+        }
         // Fall through to legacy API
     }
 
     // Fallback: legacy pinning API
-    const res = await fetch(PINATA_LEGACY_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${pinataJWT}`,
-        },
-        body: JSON.stringify({
-            pinataContent: jsonData,
-            pinataMetadata: { name: `kms-key-${Date.now()}` },
-        }),
-    });
+    try {
+        const res = await fetch(PINATA_LEGACY_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${pinataJWT}`,
+            },
+            body: JSON.stringify({
+                pinataContent: jsonData,
+                pinataMetadata: { name: `kms-key-${Date.now()}` },
+            }),
+        });
 
-    if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`Pinata upload failed: ${err}`);
+        if (!res.ok) {
+            const err = await res.text();
+            throw new Error(`Pinata upload failed: ${err}`);
+        }
+
+        const { IpfsHash } = await res.json();
+        return IpfsHash;
+    } catch (err) {
+        if (err.message.includes("Failed to fetch")) {
+            throw new Error("Network error: Unable to reach IPFS. Please check your internet connection.");
+        }
+        throw err;
     }
-
-    const { IpfsHash } = await res.json();
-    return IpfsHash;
 }
 
 /**
@@ -71,9 +82,16 @@ export async function uploadJSON(jsonData, pinataJWT) {
  * @returns {object} Parsed JSON
  */
 export async function fetchJSON(cid) {
-    const res = await fetch(`${IPFS_GATEWAY}/${cid}`);
-    if (!res.ok) throw new Error(`IPFS fetch failed (CID: ${cid})`);
-    return res.json();
+    try {
+        const res = await fetch(`${IPFS_GATEWAY}/${cid}`);
+        if (!res.ok) throw new Error(`IPFS fetch failed (CID: ${cid})`);
+        return res.json();
+    } catch (err) {
+        if (err.message.includes("Failed to fetch")) {
+            throw new Error("Network error: Unable to fetch from IPFS. Please check your internet connection.");
+        }
+        throw err;
+    }
 }
 
 /**

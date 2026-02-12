@@ -170,9 +170,15 @@ flowchart TB
 
 ---
 
-## 6. Application Flow
+## 6. Key Features & Application Flow
 
-### 6.1 Key Registration Flow
+### 6.1 Core Features
+- **Dashboard**: View all registered keys, check status (Active/Revoked), and audit lifecycle events.
+- **Encrypt/Decrypt Playground**: Interactive tab to test keys with real messages.
+- **Key Rotation**: Securely update underlying key material without changing the Key ID.
+- **Revocation**: Permanently disable compromised keys.
+
+### 6.2 Key Registration Flow
 
 ```mermaid
 sequenceDiagram
@@ -193,7 +199,7 @@ sequenceDiagram
     B->>U: Show success + Etherscan link
 ```
 
-### 6.2 Key Rotation Flow
+### 6.3 Key Rotation Flow
 
 1. User clicks "Rotate" on an active key and enters their password.
 2. A **new** random AES key is generated in the browser.
@@ -202,12 +208,30 @@ sequenceDiagram
 5. The smart contract is called with the new CID, replacing the old reference.
 6. The old CID remains on IPFS but the blockchain now points to the new one.
 
-### 6.3 Key Revocation Flow
+### 6.4 Key Revocation Flow
 
 1. User clicks "Revoke" and confirms the irreversible action.
 2. The smart contract changes the key's state from `ACTIVE` to `REVOKED`.
 3. A `KeyRevoked` event is emitted, permanently recorded on the blockchain.
 4. Once revoked, the key **cannot** be rotated, re-activated, or re-registered.
+
+### 6.5 Encrypt/Decrypt Playground Flow
+
+The **Playground** demonstrates the real-world utility of the KMS by allowing users to use their managed keys for actual cryptographic operations.
+
+1.  **Select Key**: User selects an active key from their wallet.
+2.  **Unlock**: User enters the password used during registration.
+3.  **Fetch & Decrypt**:
+    - The application fetches the encrypted key blob from **IPFS** using the on-chain CID.
+    - The blob is decrypted in the browser using the provided password (PBKDF2 derivation).
+    - This reveals the **raw AES-256 key** in memory (never stored to disk).
+4.  **Encrypt Message**:
+    - User types a plaintext message.
+    - The **raw KMS key** is used to encrypt the message via **AES-256-GCM**.
+    - Output: Ciphertext + IV + Auth Tag.
+5.  **Decrypt Message**:
+    - The ciphertext is decrypted using the same active session key to verify integrity.
+    - Demonstrates a complete cycle: *Register → Store → Retrieve → Unlock → Use*.
 
 ---
 
@@ -272,9 +296,15 @@ stateDiagram-v2
 | Layer | Files | Responsibility |
 |-------|-------|---------------|
 | **Model** | `KeyModel.js` | Pure data class representing key metadata |
-| **View** | `LandingPage`, `Dashboard`, `RegisterKeyModal`, `KeyDetailView` | UI rendering and user interaction |
+| **View** | `App.jsx`, `Dashboard`, `EncryptDecryptPlayground` | Tabbed interface (Home/Playground), Key Management, and Encryption UI |
 | **ViewModel** | `useKeyLifecycle.js` | Business logic, state management via `useReducer`, orchestrates services |
 | **Services** | `EncryptionService`, `IPFSService`, `KeyLifecycleService` | Handles cryptography, IPFS, and blockchain calls |
+
+### 9.1 User Interface Enhancements
+- **Tab Navigation**: Seamless switching between **Home** (Dashboard) and **Playground**.
+- **Visual Feedback**: Real-time **shimmer** animations for encryption and **pulse** effects for decryption success.
+- **Educational Context**: Interactive info cards explaining **Rotate vs. Revoke** operations.
+- **Responsive Design**: Minimalistic, premium UI using CSS variables and SVG iconography.
 
 This separation ensures the UI never directly touches encryption logic or blockchain calls, making the codebase maintainable and testable.
 
